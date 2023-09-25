@@ -68,7 +68,7 @@ typedef struct PACKED {
 #define EECONFIG_RGBLIGHT_EXTENDED (uint8_t *)(offsetof(eeprom_core_t, rgblight_ext))
 
 // Size of EEPROM being used for core data storage
-#define EECONFIG_BASE_SIZE (sizeof(eeprom_core_t))
+#define EECONFIG_BASE_SIZE ((uint8_t)sizeof(eeprom_core_t))
 
 // Size of EEPROM dedicated to keyboard- and user-specific data
 #ifndef EECONFIG_KB_DATA_SIZE
