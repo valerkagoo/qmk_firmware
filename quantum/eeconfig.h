@@ -30,15 +30,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Dummy struct only used to calculate offsets
 typedef struct PACKED {
     uint16_t magic;
-    uint8_t debug;
-    uint8_t default_layer;
+    uint8_t  debug;
+    uint8_t  default_layer;
     uint16_t keymap;
-    uint8_t backlight;
-    uint8_t audio;
+    uint8_t  backlight;
+    uint8_t  audio;
     uint32_t rgblight;
-    uint8_t unicode;
-    uint8_t steno;
-    uint8_t handedness;
+    uint8_t  unicode;
+    uint8_t  steno;
+    uint8_t  handedness;
     uint32_t keyboard;
     uint32_t user;
     union { // Mutually exclusive
@@ -46,7 +46,7 @@ typedef struct PACKED {
         uint64_t rgb_matrix;
     };
     uint32_t haptic;
-    uint8_t rgblight_ext;
+    uint8_t  rgblight_ext;
 } eeprom_core_t;
 
 /* EEPROM parameter address */
