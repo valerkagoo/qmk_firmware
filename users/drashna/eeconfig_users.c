@@ -6,8 +6,8 @@
 #include "eeconfig.h"
 #include <string.h>
 
-#if (TOTAL_EEPROM_BYTE_COUNT - 1) < EECONFIG_SIZE && !defined(KEYBOARD_input_club_ergodox_infinity)
-#    error "More eeprom configured than is available."
+#if !defined(KEYBOARD_input_club_ergodox_infinity2)
+_Static_assert(TOTAL_EEPROM_BYTE_COUNT >= EECONFIG_SIZE, "More eeprom configured than is available.");
 #endif
 #if (EECONFIG_USER_DATA_SIZE) != 0 && (EECONFIG_USER_DATA_SIZE) < 4
 #    error "Not enough EEPROM configured for user config."
