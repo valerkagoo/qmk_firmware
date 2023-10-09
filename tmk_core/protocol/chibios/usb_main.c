@@ -50,6 +50,10 @@
 extern keymap_config_t keymap_config;
 #endif
 
+#ifdef LAMPARRAY_ENABLE
+#    include "lamparray_report.h"
+#endif
+
 /* ---------------------------------------------------------
  *       Global interface variables and declarations
  * ---------------------------------------------------------
@@ -370,6 +374,9 @@ typedef struct {
 #ifdef VIRTSER_ENABLE
             usb_driver_config_t serial_driver;
 #endif
+#ifdef LAMPARRAY_ENABLE
+            usb_driver_config_t lamparray_driver;
+#endif
         };
         usb_driver_config_t array[0];
     };
@@ -409,6 +416,14 @@ static usb_driver_configs_t drivers = {
 #    define CDC_IN_MODE USB_EP_MODE_TYPE_BULK
 #    define CDC_OUT_MODE USB_EP_MODE_TYPE_BULK
     .serial_driver = QMK_USB_DRIVER_CONFIG(CDC, CDC_NOTIFICATION_EPNUM, false),
+#endif
+
+#ifdef LAMPARRAY_ENABLE
+#    define LAMPARRAY_IN_CAPACITY 4
+#    define LAMPARRAY_OUT_CAPACITY 4
+#    define LAMPARRAY_IN_MODE USB_EP_MODE_TYPE_INTR
+#    define LAMPARRAY_OUT_MODE USB_EP_MODE_TYPE_INTR
+    .lamparray_driver = QMK_USB_DRIVER_CONFIG(LAMPARRAY, 0, false),
 #endif
 };
 
@@ -606,6 +621,14 @@ static void set_led_transfer_cb(USBDriver *usbp) {
     }
 }
 
+#ifdef LAMPARRAY_ENABLE
+static universal_lamparray_response_t universal_lamparray_report_buf;
+
+static void set_lamparray_transfer_cb(USBDriver *usbp) {
+    lamparray_handle_set(&universal_lamparray_report_buf);
+}
+#endif
+
 /* Callback for SETUP request on the endpoint 0 (control) */
 static bool usb_request_hook_cb(USBDriver *usbp) {
     const USBDescriptor *dp;
@@ -653,6 +676,24 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
                                 }
 #    endif
 #endif /* SHARED_EP_ENABLE */
+
+#ifdef LAMPARRAY_ENABLE
+                            case LAMPARRAY_INTERFACE:
+                                switch (usbp->setup[2]) {
+                                    case LAMPARRAY_REPORT_ID_ATTRIBUTES:
+                                        static lamparray_attributes_report_t ret = {.report_id = LAMPARRAY_REPORT_ID_ATTRIBUTES};
+                                        lamparray_get_attributes(&ret.attributes);
+
+                                        usbSetupTransfer(usbp, (uint8_t *)&ret, sizeof(ret), NULL);
+                                        return TRUE;
+                                    case LAMPARRAY_REPORT_ID_ATTRIBUTES_RESPONSE:
+                                        static lamparray_attributes_response_report_t res = {.report_id = LAMPARRAY_REPORT_ID_ATTRIBUTES_RESPONSE};
+                                        lamparray_get_attributes_response(&res.attributes_response);
+
+                                        usbSetupTransfer(usbp, (uint8_t *)&res, sizeof(res), NULL);
+                                        return TRUE;
+                                }
+#endif
                             default:
                                 universal_report_blank.report_id = usbp->setup[2];
                                 usbSetupTransfer(usbp, (uint8_t *)&universal_report_blank, usbp->setup[6], NULL);
@@ -686,6 +727,18 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
                                 usbSetupTransfer(usbp, set_report_buf, sizeof(set_report_buf), set_led_transfer_cb);
                                 return TRUE;
                                 break;
+#ifdef LAMPARRAY_ENABLE
+                            case LAMPARRAY_INTERFACE:
+                                switch (usbp->setup[2]) {
+                                    case LAMPARRAY_REPORT_ID_ATTRIBUTES_REQUEST:
+                                    case LAMPARRAY_REPORT_ID_RANGE_UPDATE:
+                                    case LAMPARRAY_REPORT_ID_MULTI_UPDATE:
+                                    case LAMPARRAY_REPORT_ID_CONTROL:
+                                        usbSetupTransfer(usbp, (uint8_t *)&universal_lamparray_report_buf, sizeof(universal_lamparray_report_buf), set_lamparray_transfer_cb);
+                                        return TRUE;
+                                }
+                                break;
+#endif
                         }
                         break;
 
