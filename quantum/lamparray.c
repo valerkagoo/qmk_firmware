@@ -92,7 +92,7 @@ void lamparray_backing_enable(bool enable) {
 }
 
 void lamparray_backing_set_item(uint16_t index, lamp_state_t color) {
-    rgb_matrix_overlay_set(index, (rgba_t){color.red, color.green, color.blue, color.intensity ? 0 : 0xFF});
+    rgb_matrix_overlay_set(index, (rgba_t){color.red, color.green, color.blue, color.intensity ? 0xFF : 0});
 }
 
 void lamparray_backing_update_finished(void) {
