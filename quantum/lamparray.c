@@ -32,6 +32,7 @@ void lamparray_backing_update_finished(void);
  */
 static inline uint16_t binding_at_keymap_location(uint8_t row, uint8_t col) {
     uint16_t keycode = keycode_at_keymap_location(get_highest_layer(default_layer_state), row, col);
+    (void)keycode;
 #if LAMPARRAY_KIND == LAMPARRAY_KIND_KEYBOARD
     // Basic QMK keycodes currently map directly to Keyboard UsagePage so safe to return without added indirection
     // Mousekeys are ignored due to values overlap Keyboard UsagePage
@@ -41,7 +42,7 @@ static inline uint16_t binding_at_keymap_location(uint8_t row, uint8_t col) {
 #elif LAMPARRAY_KIND == LAMPARRAY_KIND_MOUSE
     // Usages from the Button UsagePage (0x09) in the range of Button1 (0x01) to Button5 (0x05) inclusive
     if ((code) >= KC_MS_BTN1 && (code) <= KC_MS_BTN5) {
-        return keycode - KC_MS_BTN1;
+        return keycode - KC_MS_BTN1 + 1;
     }
 #endif
     return 0;
@@ -65,9 +66,22 @@ static inline uint16_t binding_at_keymap_location(uint8_t row, uint8_t col) {
  */
 __attribute__((weak)) void lamparray_get_lamp_info_data(uint16_t lamp_id, lamparray_attributes_response_t* data) {
     data->position.x = (LAMPARRAY_WIDTH / 224) * g_led_config.point[lamp_id].x;
-    data->position.y = (LAMPARRAY_HEIGHT / 64) * (64 - g_led_config.point[lamp_id].y);
-    data->position.z = (g_led_config.flags[lamp_id] & LED_FLAG_UNDERGLOW) ? LAMPARRAY_DEPTH : 0;
-    data->purposes   = (g_led_config.flags[lamp_id] & LED_FLAG_UNDERGLOW) ? LAMP_PURPOSE_ACCENT : LAMP_PURPOSE_CONTROL;
+    data->position.y = (LAMPARRAY_HEIGHT / 64) * g_led_config.point[lamp_id].y;
+
+    switch (biton(g_led_config.flags[lamp_id])) {
+        case LED_FLAG_UNDERGLOW:
+            data->position.z = LAMPARRAY_DEPTH;
+            data->purposes   = LAMP_PURPOSE_ACCENT;
+            break;
+        case LED_FLAG_INDICATOR:
+            data->position.z = 0;
+            data->purposes   = LAMP_PURPOSE_STATUS;
+            break;
+        default:
+            data->position.z = 0;
+            data->purposes   = LAMP_PURPOSE_CONTROL;
+            break;
+    }
 }
 
 /**
