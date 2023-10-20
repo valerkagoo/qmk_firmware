@@ -151,7 +151,6 @@ typedef struct {
     USB_Descriptor_Interface_t LampArray_Interface;
     USB_HID_Descriptor_HID_t   LampArray_HID;
     USB_Descriptor_Endpoint_t  LampArray_INEndpoint;
-    USB_Descriptor_Endpoint_t  LampArray_OUTEndpoint;
 #endif
 } USB_Descriptor_Configuration_t;
 
@@ -297,11 +296,6 @@ enum usb_endpoints {
 
 #ifdef LAMPARRAY_ENABLE
     LAMPARRAY_IN_EPNUM = NEXT_EPNUM,
-#    ifdef USB_ENDPOINTS_ARE_REORDERABLE
-#        define LAMPARRAY_OUT_EPNUM LAMPARRAY_IN_EPNUM
-#    else
-    LAMPARRAY_OUT_EPNUM   = NEXT_EPNUM,
-#    endif
 #endif
 };
 
@@ -329,6 +323,6 @@ enum usb_endpoints {
 #define CDC_EPSIZE 16
 #define JOYSTICK_EPSIZE 8
 #define DIGITIZER_EPSIZE 8
-#define LAMPARRAY_EPSIZE 32
+#define LAMPARRAY_EPSIZE 8
 
 uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const uint16_t wLength, const void** const DescriptorAddress);

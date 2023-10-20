@@ -421,7 +421,6 @@ void EVENT_USB_Device_ConfigurationChanged(void) {
 #ifdef LAMPARRAY_ENABLE
     /* Setup LampArray endpoint */
     ConfigSuccess &= Endpoint_ConfigureEndpoint((LAMPARRAY_IN_EPNUM | ENDPOINT_DIR_IN), EP_TYPE_INTERRUPT, LAMPARRAY_EPSIZE, 1);
-    ConfigSuccess &= Endpoint_ConfigureEndpoint((LAMPARRAY_OUT_EPNUM | ENDPOINT_DIR_OUT), EP_TYPE_INTERRUPT, LAMPARRAY_EPSIZE, 1);
 #endif
 
     usb_device_state_set_configuration(USB_DeviceState == DEVICE_STATE_Configured, USB_Device_ConfigurationNumber);

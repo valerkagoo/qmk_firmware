@@ -232,6 +232,24 @@ static const USBEndpointConfig digitizer_ep_config = {
 };
 #endif
 
+#ifdef LAMPARRAY_ENABLE
+/* LampArray endpoint state structure */
+static USBInEndpointState lamparray_ep_state;
+
+/* LampArray endpoint initialization structure (IN) - see USBEndpointConfig comment at top of file */
+static const USBEndpointConfig lamparray_ep_config = {
+    USB_EP_MODE_TYPE_INTR,  /* Interrupt EP */
+    NULL,                   /* SETUP packet notification callback */
+    dummy_usb_cb,           /* IN notification callback */
+    NULL,                   /* OUT notification callback */
+    LAMPARRAY_EPSIZE,       /* IN maximum packet size */
+    0,                      /* OUT maximum packet size */
+    &lamparray_ep_state,    /* IN Endpoint state */
+    NULL,                   /* OUT endpoint state */
+    usb_lld_endpoint_fields /* USB driver specific endpoint fields */
+};
+#endif
+
 #ifdef USB_ENDPOINTS_ARE_REORDERABLE
 typedef struct {
     size_t              queue_capacity_in;
@@ -374,9 +392,6 @@ typedef struct {
 #ifdef VIRTSER_ENABLE
             usb_driver_config_t serial_driver;
 #endif
-#ifdef LAMPARRAY_ENABLE
-            usb_driver_config_t lamparray_driver;
-#endif
         };
         usb_driver_config_t array[0];
     };
@@ -416,14 +431,6 @@ static usb_driver_configs_t drivers = {
 #    define CDC_IN_MODE USB_EP_MODE_TYPE_BULK
 #    define CDC_OUT_MODE USB_EP_MODE_TYPE_BULK
     .serial_driver = QMK_USB_DRIVER_CONFIG(CDC, CDC_NOTIFICATION_EPNUM, false),
-#endif
-
-#ifdef LAMPARRAY_ENABLE
-#    define LAMPARRAY_IN_CAPACITY 4
-#    define LAMPARRAY_OUT_CAPACITY 4
-#    define LAMPARRAY_IN_MODE USB_EP_MODE_TYPE_INTR
-#    define LAMPARRAY_OUT_MODE USB_EP_MODE_TYPE_INTR
-    .lamparray_driver = QMK_USB_DRIVER_CONFIG(LAMPARRAY, 0, false),
 #endif
 };
 
@@ -536,6 +543,9 @@ static void usb_event_cb(USBDriver *usbp, usbevent_t event) {
 #endif
 #if defined(DIGITIZER_ENABLE) && !defined(DIGITIZER_SHARED_EP)
             usbInitEndpointI(usbp, DIGITIZER_IN_EPNUM, &digitizer_ep_config);
+#endif
+#ifdef LAMPARRAY_ENABLE
+            usbInitEndpointI(usbp, LAMPARRAY_IN_EPNUM, &lamparray_ep_config);
 #endif
             for (int i = 0; i < NUM_USB_DRIVERS; i++) {
 #ifdef USB_ENDPOINTS_ARE_REORDERABLE
