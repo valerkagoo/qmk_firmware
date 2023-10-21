@@ -68,19 +68,15 @@ __attribute__((weak)) void lamparray_get_lamp_info_data(uint16_t lamp_id, lampar
     data->position.x = (LAMPARRAY_WIDTH / 224) * g_led_config.point[lamp_id].x;
     data->position.y = (LAMPARRAY_HEIGHT / 64) * g_led_config.point[lamp_id].y;
 
-    switch (biton(g_led_config.flags[lamp_id])) {
-        case LED_FLAG_UNDERGLOW:
-            data->position.z = LAMPARRAY_DEPTH;
-            data->purposes   = LAMP_PURPOSE_ACCENT;
-            break;
-        case LED_FLAG_INDICATOR:
-            data->position.z = 0;
-            data->purposes   = LAMP_PURPOSE_STATUS;
-            break;
-        default:
-            data->position.z = 0;
-            data->purposes   = LAMP_PURPOSE_CONTROL;
-            break;
+    if (g_led_config.flags[lamp_id] & LED_FLAG_UNDERGLOW) {
+        data->position.z = LAMPARRAY_DEPTH;
+        data->purposes   = LAMP_PURPOSE_ACCENT;
+    } else if (g_led_config.flags[lamp_id] & LED_FLAG_INDICATOR) {
+        data->position.z = 0;
+        data->purposes   = LAMP_PURPOSE_STATUS;
+    } else {
+        data->position.z = 0;
+        data->purposes   = LAMP_PURPOSE_CONTROL;
     }
 }
 
