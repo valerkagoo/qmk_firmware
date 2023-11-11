@@ -60,6 +60,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef ENCODER_ENABLE
 #    include "encoder.h"
 #endif
+#ifdef POTENTIOMETER_ENABLE
+#    include "potentiometer.h"
+#endif
 #ifdef HAPTIC_ENABLE
 #    include "haptic.h"
 #endif
@@ -665,6 +668,12 @@ void keyboard_task(void) {
 #ifdef ENCODER_ENABLE
     if (encoder_read()) {
         last_encoder_activity_trigger();
+        activity_has_occurred = true;
+    }
+#endif
+
+#ifdef POTENTIOMETER_ENABLE
+    if (potentiometer_task()) {
         activity_has_occurred = true;
     }
 #endif

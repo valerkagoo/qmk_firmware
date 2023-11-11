@@ -17,7 +17,7 @@
 
 #pragma once
 
-#define SLIDER_PIN B0
+#define POTENTIOMETER_PINS { B0 }
 #define MIDI_ADVANCED
 
 #define LOCKING_SUPPORT_ENABLE

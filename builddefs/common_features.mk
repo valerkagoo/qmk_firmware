@@ -905,6 +905,10 @@ ifeq ($(strip $(ENCODER_ENABLE)), yes)
     endif
 endif
 
+ifeq ($(strip $(POTENTIOMETER_ENABLE)), yes)
+    ANALOG_DRIVER_REQUIRED = yes
+endif
+
 VALID_WS2812_DRIVER_TYPES := bitbang custom i2c pwm spi vendor
 
 WS2812_DRIVER ?= bitbang
